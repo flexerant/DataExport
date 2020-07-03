@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Flexerant.DataExport.Excel
 {
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
+    [AttributeUsage(AttributeTargets.Property)]
     public class ExcelCellFormatAttribute : Attribute
     {
         public const string ShortDate = "yyyy-mm-dd";

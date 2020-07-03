@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Flexerant.DataExport.Excel
 {
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
+    [AttributeUsage(AttributeTargets.Property)]
     public class ExcelSpreadsheetColumnAttribute : Attribute
     {
         public string ColumnName { get; set; }

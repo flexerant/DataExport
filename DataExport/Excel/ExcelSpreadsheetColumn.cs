@@ -11,11 +11,14 @@ namespace Flexerant.DataExport.Excel
         public string ColumnName { get; private set; }
         public string PropertyName { get; private set; }      
         public string CellFormat { get; private set; } = null;
+        public bool Ignore { get; private set; } = false;
 
         public ExcelSpreadsheetColumn(PropertyInfo pi)
         {
             var colAtt = pi.GetCustomAttribute<ExcelSpreadsheetColumnAttribute>();
             var formatAtt = pi.GetCustomAttribute<ExcelCellFormatAttribute>();
+            var ignoreAtt = pi.GetCustomAttribute<ExcelSpreadsheetIgnoreColumnAttribute>();
+
             this.PropertyName = pi.Name;
 
             if (colAtt == null)
@@ -32,11 +35,18 @@ namespace Flexerant.DataExport.Excel
                 {
                     this.ColumnName = colAtt.ColumnName;
                 }
+
+                this.Order = colAtt.Order;
             }
 
             if (formatAtt != null)
             {
                 this.CellFormat = formatAtt.Format;
+            }
+
+            if (ignoreAtt != null)
+            {
+                this.Ignore = true;
             }
         }
     }

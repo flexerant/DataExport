@@ -20,10 +20,13 @@ namespace Tests
         public DateTime BirthDate { get; set; }
 
         [ExcelSpreadsheetColumn(Order = 3)]
-        public int Age { get; set; }
+        public int Age => Convert.ToInt32(Math.Floor(DateTime.Now.Subtract(this.BirthDate).TotalDays / 365));
 
         [ExcelSpreadsheetColumn("Female", Order = 4)]
         public bool IsFemale { get; set; }
+
+        [ExcelSpreadsheetIgnoreColumn()]
+        public Guid UUID { get; set; } = new Guid();
 
         [ExcelCellFormat(ExcelCellFormatAttribute.Accounting)]
         public double Worth { get; set; }

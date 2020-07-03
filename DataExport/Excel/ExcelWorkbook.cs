@@ -27,7 +27,7 @@ namespace Flexerant.DataExport.Excel
         {
             Type type = typeof(T);
             PropertyInfo[] itemProperties = type.GetProperties();
-            List<ExcelSpreadsheetColumn> columns = itemProperties.Select(pi => new ExcelSpreadsheetColumn(pi)).OrderBy(c => c.Order).ThenBy(c => c.ColumnName).ToList();
+            List<ExcelSpreadsheetColumn> columns = itemProperties.Select(pi => new ExcelSpreadsheetColumn(pi)).Where(c => !c.Ignore).OrderBy(c => c.Order).ThenBy(c => c.ColumnName).ToList();
             ExcelSpreadsheetAttribute spreadhseetAttribute = type.GetCustomAttribute<ExcelSpreadsheetAttribute>();
 
             if (spreadsheetName == null)
