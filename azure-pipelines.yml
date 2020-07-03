@@ -15,6 +15,10 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
+- task: GitVersion@5
+  inputs:
+    runtime: 'core'
+    updateAssemblyInfo: true
 - task: NuGetToolInstaller@1
 
 - task: NuGetCommand@2
