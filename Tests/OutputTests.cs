@@ -8,6 +8,7 @@ using ExcelDataReader;
 using System.Reflection.Emit;
 using Newtonsoft.Json;
 using System.Text;
+using System.Linq;
 
 namespace Tests
 {
@@ -21,15 +22,48 @@ namespace Tests
         [Fact]
         public void Output()
         {
-            string json1 = Encoding.UTF8.GetString(Properties.Resources.MOCK_PERSON_DATA_1, 0, Properties.Resources.MOCK_PERSON_DATA_1.Length);
-            string json2 = Encoding.UTF8.GetString(Properties.Resources.MOCK_PERSON_DATA_2, 0, Properties.Resources.MOCK_PERSON_DATA_2.Length);
-            JsonSerializerSettings serializerSettings = new JsonSerializerSettings { DateFormatString = "MM/dd/yyyy" };
-            List<Person> people1 = JsonConvert.DeserializeObject<List<Person>>(json1, serializerSettings);
-            List<Person> people2 = JsonConvert.DeserializeObject<List<Person>>(json2, serializerSettings);
+            List<Order> orders = new List<Order>()
+            {
+                new Order()
+                {
+                     Description ="Party hats",
+                     OrderDate = new DateTime(2019, 12, 28),
+                     OrderIsComplete = false,
+                     Quantity = 100,
+                     UnitPrice = 0.1m,
+                     SubTotal = 100 * 0.1,
+                     Tax = 0.13,
+                     Total = 100 * 0.1* (1 + 0.13)
+                },
+                new Order()
+                {
+                     Description ="Balloons",
+                     OrderDate = new DateTime(2019, 12, 28),
+                     OrderIsComplete = false,
+                     Quantity = 10000,
+                     UnitPrice = 0.1m,
+                     SubTotal = 10000 * 0.1,
+                     Tax = 0.13,
+                     Total = 10000 * 0.1 * (1 + 0.13)
+                },
+                new Order()
+                {
+                     Description ="Headache medicine, extra strength, bottle of 500",
+                     OrderDate = new DateTime(2020, 1, 1),
+                     OrderIsComplete = false,
+                     Quantity = 1,
+                     UnitPrice = 15.99m,
+                     SubTotal = 1 * 15.99,
+                     Tax = 0.13,
+                     Total = 1 * 15.99 * (1 + 0.13)
+                },
+            };
+
             ExcelWorkbook workbook = new ExcelWorkbook();
 
-            workbook.AddSpreadheet(people1);
-            workbook.AddSpreadheet(people2, "more people"); // override the sheet name.
+            workbook.AddSpreadheet(orders);
+            workbook.AddSpreadheet(orders.Where(x => x.OrderDate.Year == 2019), "2019 orders"); // Overwrite the spreadsheet name.
+            workbook.AddSpreadheet(orders.Where(x => x.OrderDate.Year == 2020), "2020 orders");
 
             DataSet ds;
             byte[] excelData;
@@ -49,37 +83,31 @@ namespace Tests
             }
 
             // Confirm the expected spreadsheets exist.
-            Assert.NotNull(ds.Tables["people"]);
-            Assert.NotNull(ds.Tables["more people"]);
+            Assert.NotNull(ds.Tables["Orders"]);
+            Assert.NotNull(ds.Tables["2019 orders"]);
+            Assert.NotNull(ds.Tables["2020 orders"]);
 
-            var headingRow = ds.Tables["people"].Rows[0];
+            var headingRow = ds.Tables["Orders"].Rows[0];
 
             // Confirm the order of columns is as expected.
-            Assert.Equal("First name", headingRow.Field<string>(0));
-            Assert.Equal("Last name", headingRow.Field<string>(1));
-            Assert.Equal("Date of birth", headingRow.Field<string>(2));
-            Assert.Equal("Age", headingRow.Field<string>(3));
-            Assert.Equal("Female", headingRow.Field<string>(4));
-            Assert.Equal("Integer", headingRow.Field<string>(5));
-            Assert.Equal("Percent", headingRow.Field<string>(6));
-            Assert.Equal("Text", headingRow.Field<string>(7));
-            Assert.Equal("Worth", headingRow.Field<string>(8));
+            Assert.Equal("Product description", headingRow.Field<string>(0));
+            Assert.Equal("Order date", headingRow.Field<string>(1));
+            Assert.Equal("Quantity", headingRow.Field<string>(2));
+            Assert.Equal("Price", headingRow.Field<string>(3));
+            Assert.Equal("Sub-total", headingRow.Field<string>(4));
+            Assert.Equal("Tax", headingRow.Field<string>(5));
+            Assert.Equal("Total", headingRow.Field<string>(6));
+            Assert.Equal("Order is complete", headingRow.Field<string>(7));
 
             // Confirm the row counts
-            Assert.Equal(1001, ds.Tables["people"].Rows.Count);
-            Assert.Equal(1001, ds.Tables["more people"].Rows.Count);
+            Assert.Equal(4, ds.Tables["Orders"].Rows.Count);
+            Assert.Equal(3, ds.Tables["2019 orders"].Rows.Count);
+            Assert.Equal(2, ds.Tables["2020 orders"].Rows.Count);
 
             // Confirm only the non-ignored column headings are displayed.
-            Assert.Equal(9, ds.Tables["people"].Rows[0].ItemArray.Length);
-            Assert.Equal(9, ds.Tables["more people"].Rows[0].ItemArray.Length);
-
-            // Confirm only the non-ignored columns are displayed.
-            Assert.Equal(9, ds.Tables["people"].Rows[10].ItemArray.Length);
-            Assert.Equal(9, ds.Tables["people"].Rows[100].ItemArray.Length);
-            Assert.Equal(9, ds.Tables["people"].Rows[1000].ItemArray.Length);
-            Assert.Equal(9, ds.Tables["more people"].Rows[10].ItemArray.Length);
-            Assert.Equal(9, ds.Tables["more people"].Rows[100].ItemArray.Length);
-            Assert.Equal(9, ds.Tables["more people"].Rows[1000].ItemArray.Length);
+            Assert.Equal(typeof(Order).GetProperties().Length - 1, ds.Tables["Orders"].Rows[0].ItemArray.Length);
+            Assert.Equal(typeof(Order).GetProperties().Length - 1, ds.Tables["2019 orders"].Rows[0].ItemArray.Length);
+            Assert.Equal(typeof(Order).GetProperties().Length - 1, ds.Tables["2020 orders"].Rows[0].ItemArray.Length);
         }
     }
 }

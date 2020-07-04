@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DataExport\DataExport.csproj" />
+    <ProjectReference Include="..\DataExport\Excel.csproj" />
   </ItemGroup>
 
   <ItemGroup>

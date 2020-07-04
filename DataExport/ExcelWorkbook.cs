@@ -15,7 +15,6 @@ namespace Flexerant.DataExport.Excel
     public class ExcelWorkbook
     {
         private readonly IWorkbook _workbook;
-        private readonly Dictionary<string, short> _dataFormats = new Dictionary<string, short>();
         private readonly Dictionary<string, ICellStyle> _styles = new Dictionary<string, ICellStyle>();
 
         public ExcelWorkbook()
@@ -23,61 +22,47 @@ namespace Flexerant.DataExport.Excel
             _workbook = new XSSFWorkbook();
         }
 
-        public void AddSpreadheet<T>(ICollection<T> collection, string spreadsheetName = null)
-        {
-            Type type = typeof(T);
-            PropertyInfo[] itemProperties = type.GetProperties();
-            List<ExcelSpreadsheetColumn> columns = itemProperties.Select(pi => new ExcelSpreadsheetColumn(pi)).Where(c => !c.Ignore).OrderBy(c => c.Order).ThenBy(c => c.ColumnName).ToList();
-            ExcelSpreadsheetAttribute spreadhseetAttribute = type.GetCustomAttribute<ExcelSpreadsheetAttribute>();
+      
+
+        public void AddSpreadheet<T>(IEnumerable<T> collection, string spreadsheetName = null)
+        {           
+            List<ExcelSpreadsheetColumn> columns = this.GetSpreadsheetColumns<T>();           
 
             if (spreadsheetName == null)
             {
-                if (spreadhseetAttribute == null)
-                {
-                    spreadsheetName = type.Name;
-                }
-                else
-                {
-                    spreadsheetName = spreadhseetAttribute.SpreadsheetName;
-                }
+                spreadsheetName = this.GetSpreadsheetName<T>();
             }
-                                   
+
             var spreadsheetIndex = _workbook.GetSheetIndex(spreadsheetName);
             int sheetIndex = 0;
 
-            while(spreadsheetIndex != -1)
+            // Prevent duplicate spreadsheet names.
+            while (spreadsheetIndex != -1)
             {
                 sheetIndex++;
                 spreadsheetName = $"{spreadsheetName}({sheetIndex})";
                 spreadsheetIndex = _workbook.GetSheetIndex(spreadsheetName);
             }
 
-            ICellStyle headerStyle = _workbook.CreateCellStyle();
-
-            headerStyle.BorderBottom = BorderStyle.Thin;
-            headerStyle.Alignment = HorizontalAlignment.Center;
-
-            IFont headerFont = _workbook.CreateFont();
-
-            headerFont.IsBold = true;
-            headerStyle.SetFont(headerFont);
-            
+            ICellStyle headerStyle = this.GetHeaderStyle();          
             int colCount = columns.Count;
             ISheet sheet = _workbook.CreateSheet(spreadsheetName);
             int rowIndex = 0;
             IRow row = sheet.CreateRow(rowIndex);
 
+            // Set the header.
             for (int cellIndex = 0; cellIndex < colCount; cellIndex++)
             {
                 ExcelSpreadsheetColumn col = columns[cellIndex];
                 ICell cell = row.CreateCell(cellIndex, CellType.String);
 
                 cell.SetCellValue(col.ColumnName);
-                cell.CellStyle = headerStyle;                
+                cell.CellStyle = headerStyle;
             }
 
             rowIndex++;
 
+            // Set the remaining rows.
             foreach (var item in collection)
             {
                 row = sheet.CreateRow(rowIndex);
@@ -96,11 +81,52 @@ namespace Flexerant.DataExport.Excel
                 rowIndex++;
             }
 
+            // Autosize the columns.
             for (int cellIndex = 0; cellIndex < colCount; cellIndex++)
             {
                 ExcelSpreadsheetColumn col = columns[cellIndex];
 
                 sheet.AutoSizeColumn(cellIndex);
+            }
+        }
+
+        private ICellStyle GetHeaderStyle()
+        {
+            ICellStyle headerStyle = _workbook.CreateCellStyle();
+
+            headerStyle.BorderBottom = BorderStyle.Thin;
+            headerStyle.Alignment = HorizontalAlignment.Center;
+
+            IFont headerFont = _workbook.CreateFont();
+
+            headerFont.IsBold = true;
+            headerStyle.SetFont(headerFont);
+
+            return headerStyle;
+        }
+
+        private List<ExcelSpreadsheetColumn> GetSpreadsheetColumns<T>()
+        {
+            return typeof(T).GetProperties()
+                .Select(pi => new ExcelSpreadsheetColumn(pi))
+                .Where(c => !c.Ignore)
+                .OrderBy(c => c.Order)
+                .ThenBy(c => c.ColumnName)
+                .ToList();
+        }
+
+        private string GetSpreadsheetName<T>()
+        {
+            Type type = typeof(T);
+            ExcelSpreadsheetAttribute spreadhseetAttribute = type.GetCustomAttribute<ExcelSpreadsheetAttribute>();
+
+            if (spreadhseetAttribute == null)
+            {
+                return type.Name;
+            }
+            else
+            {
+                return spreadhseetAttribute.SpreadsheetName;
             }
         }
 
@@ -142,24 +168,22 @@ namespace Flexerant.DataExport.Excel
         {
             if (value != null)
             {
-                Type type = value.GetType();
-
                 switch (value)
                 {
-                    case int i:
-                    case short s:
-                    case long l:
-                    case decimal dec:
-                    case double dbl:
-                    case float f:
+                    case int _:
+                    case short _:
+                    case long _:
+                    case decimal _:
+                    case double _:
+                    case float _:
                         cell.SetCellValue(Convert.ToDouble(value));
                         break;
 
-                    case bool b:
+                    case bool _:
                         cell.SetCellValue((bool)value);
                         break;
 
-                    case DateTime dt:
+                    case DateTime _:
                         cell.SetCellValue((DateTime)value);
                         break;
 

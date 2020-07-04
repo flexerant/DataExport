@@ -2,15 +2,21 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
-    <AssemblyName>Flexerant.DataExport</AssemblyName>
-    <RootNamespace>Flexerant.DataExport</RootNamespace>
+    <AssemblyName>Flexerant.DataExport.Excel</AssemblyName>
+    <RootNamespace>Flexerant.DataExport.Excel</RootNamespace>
+    <Company>Flexerant</Company>
+    <Product>Flexerant.DataExport</Product>
+    <Description>A utility for serializing POCO collections to Excel.</Description>
+    <PackageProjectUrl>https://github.com/flexerant/DataExport</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/flexerant/DataExport</RepositoryUrl>
+    <PackageLicenseFile></PackageLicenseFile>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
     <Compile Remove="CellFormatAttribute.cs" />
     <Compile Remove="Enums.cs" />
     <Compile Remove="ExcelColumnAttribute.cs" />
-    <Compile Remove="Excel\Enums.cs" />
     <Compile Remove="ExtensionMethods.cs" />
     <Compile Remove="ReportColumnOrderAttribute.cs" />
     <Compile Remove="ReportProperty.cs" />
