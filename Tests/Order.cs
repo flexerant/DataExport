@@ -40,5 +40,8 @@ namespace Tests
         [ExcelSpreadsheetColumn(Order = 5)]
         [ExcelCellFormat(ExcelCellFormatAttribute.Percentage)]
         public double Tax { get; set; }
+
+        [ExcelSpreadsheetColumn("Order status", Order = 7)]        
+        public Statuses Status { get; set; }
     }
 }
