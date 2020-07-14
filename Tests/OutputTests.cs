@@ -33,7 +33,8 @@ namespace Tests
                      UnitPrice = 0.1m,
                      SubTotal = 100 * 0.1,
                      Tax = 0.13,
-                     Total = 100 * 0.1* (1 + 0.13)
+                     Total = 100 * 0.1* (1 + 0.13),
+                     Status = Statuses.Shipped
                 },
                 new Order()
                 {
@@ -44,7 +45,8 @@ namespace Tests
                      UnitPrice = 0.1m,
                      SubTotal = 10000 * 0.1,
                      Tax = 0.13,
-                     Total = 10000 * 0.1 * (1 + 0.13)
+                     Total = 10000 * 0.1 * (1 + 0.13),
+                     Status = Statuses.Shipped
                 },
                 new Order()
                 {
@@ -55,7 +57,8 @@ namespace Tests
                      UnitPrice = 15.99m,
                      SubTotal = 1 * 15.99,
                      Tax = 0.13,
-                     Total = 1 * 15.99 * (1 + 0.13)
+                     Total = 1 * 15.99 * (1 + 0.13),
+                     Status = Statuses.InProgress
                 },
             };
 
@@ -97,7 +100,7 @@ namespace Tests
             Assert.Equal("Sub-total", headingRow.Field<string>(4));
             Assert.Equal("Tax", headingRow.Field<string>(5));
             Assert.Equal("Total", headingRow.Field<string>(6));
-            Assert.Equal("Order is complete", headingRow.Field<string>(7));
+            Assert.Equal("Order is complete", headingRow.Field<string>(8));
 
             // Confirm the row counts
             Assert.Equal(4, ds.Tables["Orders"].Rows.Count);

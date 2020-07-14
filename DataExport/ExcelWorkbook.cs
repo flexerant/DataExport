@@ -1,4 +1,5 @@
 ﻿using DocumentFormat.OpenXml.Office.CustomUI;
+using NPOI.HSSF.Record;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using Org.BouncyCastle.Asn1.X509.Qualified;
@@ -22,11 +23,11 @@ namespace Flexerant.DataExport.Excel
             _workbook = new XSSFWorkbook();
         }
 
-      
+
 
         public void AddSpreadheet<T>(IEnumerable<T> collection, string spreadsheetName = null)
-        {           
-            List<ExcelSpreadsheetColumn> columns = this.GetSpreadsheetColumns<T>();           
+        {
+            List<ExcelSpreadsheetColumn> columns = this.GetSpreadsheetColumns<T>();
 
             if (spreadsheetName == null)
             {
@@ -44,7 +45,7 @@ namespace Flexerant.DataExport.Excel
                 spreadsheetIndex = _workbook.GetSheetIndex(spreadsheetName);
             }
 
-            ICellStyle headerStyle = this.GetHeaderStyle();          
+            ICellStyle headerStyle = this.GetHeaderStyle();
             int colCount = columns.Count;
             ISheet sheet = _workbook.CreateSheet(spreadsheetName);
             int rowIndex = 0;
@@ -72,8 +73,36 @@ namespace Flexerant.DataExport.Excel
                     ExcelSpreadsheetColumn col = columns[cellIndex];
                     ICell cell = row.CreateCell(cellIndex, CellType.String);
                     PropertyInfo pi = item.GetType().GetProperty(col.PropertyName);
+                    object value;
 
-                    this.SetCellValue(cell, pi.GetValue(item));
+                    if (typeof(System.Enum).IsAssignableFrom(pi.PropertyType))
+                    {
+                        MemberInfo memberInfo = pi.PropertyType.GetMember(pi.GetValue(item).ToString()).FirstOrDefault();
+
+                        if (memberInfo != null)
+                        {
+                            ExcelSpreadsheetEnumAttribute enumAttribute = (ExcelSpreadsheetEnumAttribute)memberInfo.GetCustomAttributes(typeof(ExcelSpreadsheetEnumAttribute), false).FirstOrDefault();
+
+                            if (enumAttribute != null)
+                            {
+                                value = enumAttribute.Value;
+                            }
+                            else
+                            {
+                                value = pi.GetValue(item);
+                            }
+                        }
+                        else
+                        {
+                            value = pi.GetValue(item);
+                        }
+                    }
+                    else
+                    {
+                        value = pi.GetValue(item);
+                    }
+
+                    this.SetCellValue(cell, value);
 
                     cell.CellStyle = this.GetCellStyle(col.CellFormat);
                 }
