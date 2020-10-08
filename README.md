@@ -16,8 +16,7 @@ public class Order
   [ExcelSpreadsheetColumn("Product description", Order = 0)]
   public string Description { get; set; }
 
-  [ExcelSpreadsheetColumn("Order date", Order = 1)]
-  [ExcelCellFormat(ExcelCellFormatAttribute.ShortDate)]
+  [ExcelSpreadsheetColumn("Order date", Order = 1, CellFormat = CellFormats.SHORT_DATE)]
   public DateTime OrderDate { get; set; }
 
   [ExcelSpreadsheetColumn(Order = 2)]
@@ -26,23 +25,20 @@ public class Order
   [ExcelSpreadsheetColumn("Order is complete")]
   public bool OrderIsComplete { get; set; }
 
-  [ExcelSpreadsheetColumn("Price", Order = 3)]
-  [ExcelCellFormat(ExcelCellFormatAttribute.Accounting)]
+  [ExcelSpreadsheetColumn("Price", Order = 3, CellFormat = CellFormats.ACCOUNTING)]
   public decimal UnitPrice { get; set; }
 
-  [ExcelSpreadsheetColumn("Sub-total", Order = 4)]
-  [ExcelCellFormat(ExcelCellFormatAttribute.Accounting)]
+  [ExcelSpreadsheetColumn("Sub-total", Order = 4, CellFormat = CellFormats.ACCOUNTING)]
   public double SubTotal { get; set; }
 
-  [ExcelSpreadsheetColumn(Order = 6)]
-  [ExcelCellFormat(ExcelCellFormatAttribute.Accounting)]
+  [ExcelSpreadsheetColumn(Order = 6, CellFormat = CellFormats.ACCOUNTING)]
   public double Total { get; set; }
 
-  [ExcelSpreadsheetColumn(Order = 5)]
-  [ExcelCellFormat(ExcelCellFormatAttribute.Percentage)]
+  [ExcelSpreadsheetColumn(Order = 5, CellFormat = CellFormats.PERCENTAGE)]
   public double Tax { get; set; }
 }
 ```
+
 Create the spreadsheet by simply populating the POCO collection (`IEnumerable<T>`) and adding it to the workbook.
 
 ```csharp
@@ -94,5 +90,3 @@ workbook.Save(new FileInfo(...));
 The resulting Excel spreadsheet looks like this...
 
 ![excel screen shot](./assets/excel_screen_shot.PNG "Excel screen shot")
-
-

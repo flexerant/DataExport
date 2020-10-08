@@ -7,8 +7,10 @@ namespace Flexerant.DataExport.Excel
     [AttributeUsage(AttributeTargets.Property)]
     public class ExcelSpreadsheetColumnAttribute : Attribute
     {
-        public string ColumnName { get; set; }
+        public string ColumnName { get; set; } = null;
         public int Order { get; set; } = int.MaxValue;
+
+        public string CellFormat { get; set; } = null;      
 
         public ExcelSpreadsheetColumnAttribute(string propertyName = null)
         {

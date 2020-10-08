@@ -15,7 +15,7 @@
 
   <ItemGroup>
     <Compile Remove="CellFormatAttribute.cs" />
-    <Compile Remove="Enums.cs" />
+    <Compile Remove="ExcelCellFormatAttribute.cs" />
     <Compile Remove="ExcelColumnAttribute.cs" />
     <Compile Remove="ExtensionMethods.cs" />
     <Compile Remove="ReportColumnOrderAttribute.cs" />

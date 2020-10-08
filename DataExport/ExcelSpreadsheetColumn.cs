@@ -16,7 +16,6 @@ namespace Flexerant.DataExport.Excel
         public ExcelSpreadsheetColumn(PropertyInfo pi)
         {
             var colAtt = pi.GetCustomAttribute<ExcelSpreadsheetColumnAttribute>();
-            var formatAtt = pi.GetCustomAttribute<ExcelCellFormatAttribute>();
             var ignoreAtt = pi.GetCustomAttribute<ExcelSpreadsheetIgnoreColumnAttribute>();
 
             this.PropertyName = pi.Name;
@@ -37,11 +36,7 @@ namespace Flexerant.DataExport.Excel
                 }
 
                 this.Order = colAtt.Order;
-            }
-
-            if (formatAtt != null)
-            {
-                this.CellFormat = formatAtt.Format;
+                this.CellFormat = colAtt.CellFormat;
             }
 
             if (ignoreAtt != null)
