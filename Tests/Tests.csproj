@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFrameworks>netcoreapp3.1;net5.0</TargetFrameworks>
 
     <IsPackable>false</IsPackable>
 
-    <AssemblyName>Tests.NETCORE31</AssemblyName>
+    <AssemblyName>Tests</AssemblyName>
 
     <RootNamespace>Tests</RootNamespace>
   </PropertyGroup>
@@ -30,9 +30,10 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
+  
 
   <ItemGroup>
-    <ProjectReference Include="..\..\DataExport\Excel.csproj" />
+    <ProjectReference Include="..\DataExport\Excel.csproj" />
   </ItemGroup>
 
   <ItemGroup>
