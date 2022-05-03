@@ -25,7 +25,7 @@ namespace Flexerant.DataExport.Excel
 
 
 
-        public void AddSpreadheet<T>(IEnumerable<T> collection, string spreadsheetName = null)
+        public void AddSpreadheet<T>(IEnumerable<T> collection, string spreadsheetName = null, Func<PropertyInfo, bool> filter = null)
         {
             List<ExcelSpreadsheetColumn> columns = this.GetSpreadsheetColumns<T>();
 
@@ -50,15 +50,21 @@ namespace Flexerant.DataExport.Excel
             ISheet sheet = _workbook.CreateSheet(spreadsheetName);
             int rowIndex = 0;
             IRow row = sheet.CreateRow(rowIndex);
+            int headerIndex = 0;
 
             // Set the header.
-            for (int cellIndex = 0; cellIndex < colCount; cellIndex++)
-            {
-                ExcelSpreadsheetColumn col = columns[cellIndex];
-                ICell cell = row.CreateCell(cellIndex, CellType.String);
+            foreach(var col in columns)            
+            {                
+                PropertyInfo pi = typeof(T).GetProperty(col.PropertyName);
 
-                cell.SetCellValue(col.ColumnName);
-                cell.CellStyle = headerStyle;
+                if (filter == null || filter.Invoke(pi))
+                {
+                    ICell cell = row.CreateCell(headerIndex, CellType.String);
+
+                    cell.SetCellValue(col.ColumnName);
+                    cell.CellStyle = headerStyle;
+                    headerIndex++;
+                }
             }
 
             rowIndex++;
@@ -68,24 +74,31 @@ namespace Flexerant.DataExport.Excel
             {
                 row = sheet.CreateRow(rowIndex);
 
-                for (int cellIndex = 0; cellIndex < colCount; cellIndex++)
-                {
-                    ExcelSpreadsheetColumn col = columns[cellIndex];
-                    ICell cell = row.CreateCell(cellIndex, CellType.String);
+                int cellIndex = 0;
+
+                foreach (var col in columns)
+                {                    
                     PropertyInfo pi = item.GetType().GetProperty(col.PropertyName);
                     object value;
 
-                    if (typeof(System.Enum).IsAssignableFrom(pi.PropertyType))
+                    if (filter == null || filter.Invoke(pi))
                     {
-                        MemberInfo memberInfo = pi.PropertyType.GetMember(pi.GetValue(item).ToString()).FirstOrDefault();
-
-                        if (memberInfo != null)
+                        if (typeof(Enum).IsAssignableFrom(pi.PropertyType))
                         {
-                            ExcelSpreadsheetEnumAttribute enumAttribute = (ExcelSpreadsheetEnumAttribute)memberInfo.GetCustomAttributes(typeof(ExcelSpreadsheetEnumAttribute), false).FirstOrDefault();
+                            MemberInfo memberInfo = pi.PropertyType.GetMember(pi.GetValue(item).ToString()).FirstOrDefault();
 
-                            if (enumAttribute != null)
+                            if (memberInfo != null)
                             {
-                                value = enumAttribute.Value;
+                                ExcelSpreadsheetEnumAttribute enumAttribute = (ExcelSpreadsheetEnumAttribute)memberInfo.GetCustomAttributes(typeof(ExcelSpreadsheetEnumAttribute), false).FirstOrDefault();
+
+                                if (enumAttribute != null)
+                                {
+                                    value = enumAttribute.Value;
+                                }
+                                else
+                                {
+                                    value = pi.GetValue(item);
+                                }
                             }
                             else
                             {
@@ -96,15 +109,15 @@ namespace Flexerant.DataExport.Excel
                         {
                             value = pi.GetValue(item);
                         }
-                    }
-                    else
-                    {
-                        value = pi.GetValue(item);
-                    }
 
-                    this.SetCellValue(cell, value);
+                        ICell cell = row.CreateCell(cellIndex, CellType.String);
 
-                    cell.CellStyle = this.GetCellStyle(col.CellFormat);
+                        this.SetCellValue(cell, value);
+
+                        cell.CellStyle = this.GetCellStyle(col.CellFormat);
+
+                        cellIndex++;
+                    }
                 }
 
                 rowIndex++;
